@@ -10,7 +10,6 @@
 :root {
   --bg: #F4F6F8; --card: #FFFFFF; --ink: #16202A; --ink2: #2B3743; --muted: #5B6673; --icon: #44505C;
   --line: #DDE2E8; --field: #C9D1DA; --soft: #EEF1F4; --accent: #0B5E5E; --accent-soft: #E3F0F0; --on-accent: #FFFFFF;
-  --bubble: #16202A; --on-bubble: #FFFFFF;
   --ok-bg: #E6F2EE; --ok: #1D5B45; --old-bg: #FDF3E7; --old: #8A4B0C; --old-ink: #6B3A0A; --old-chip: #F7E2C8;
   --old-card: #FBFAF7; --old-line: #D9B98C; --old-bar: #C9A47A; --bar: #9AA6B2;
   --info-bg: #EAF0F7; --info: #1F3A5C; --warn-bg: #FBEAEA; --warn: #7A1F1F; --warn-chip: #F5D5D5;
@@ -20,7 +19,6 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0F151B; --card: #18212A; --ink: #E6ECF1; --ink2: #C9D3DC; --muted: #93A0AD; --icon: #AEBAC5;
   --line: #2A3540; --field: #3A4652; --soft: #222C36; --accent: #4FB8B0; --accent-soft: #163634; --on-accent: #062221;
-  --bubble: #2A3A48; --on-bubble: #F2F6F9;
   --ok-bg: #16332A; --ok: #8FD6B8; --old-bg: #33260F; --old: #F0C08A; --old-ink: #F3CFA4; --old-chip: #4A3615;
   --old-card: #1E1B15; --old-line: #7A5A33; --old-bar: #B78B57; --bar: #5E6B78;
   --info-bg: #182A3D; --info: #A9C6E6; --warn-bg: #3A1A1A; --warn: #F2B3B3; --warn-chip: #552424;
@@ -29,7 +27,6 @@
 :root[data-theme="dark"] {
   --bg: #0F151B; --card: #18212A; --ink: #E6ECF1; --ink2: #C9D3DC; --muted: #93A0AD; --icon: #AEBAC5;
   --line: #2A3540; --field: #3A4652; --soft: #222C36; --accent: #4FB8B0; --accent-soft: #163634; --on-accent: #062221;
-  --bubble: #2A3A48; --on-bubble: #F2F6F9;
   --ok-bg: #16332A; --ok: #8FD6B8; --old-bg: #33260F; --old: #F0C08A; --old-ink: #F3CFA4; --old-chip: #4A3615;
   --old-card: #1E1B15; --old-line: #7A5A33; --old-bar: #B78B57; --bar: #5E6B78;
   --info-bg: #182A3D; --info: #A9C6E6; --warn-bg: #3A1A1A; --warn: #F2B3B3; --warn-chip: #552424;
@@ -42,7 +39,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 svg { flex: none; }
 header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); background: var(--card); border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 12px; }
-.logo { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); color: var(--on-accent); display: flex; align-items: center; justify-content: center; }
+.logo { width: 40px; height: 40px; border-radius: 12px; background: var(--accent); color: var(--on-accent); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 var(--shadow); }
 .brand b { display: block; font-size: 16px; line-height: 1.3; }
 .brand small { display: block; color: var(--muted); font-size: 12px; line-height: 1.3; }
 .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
@@ -66,7 +63,9 @@ main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; g
 .turn.active .card { border-color: var(--accent); }
 .link { border: 0; background: transparent; padding: 4px 6px; border-radius: 6px; font: inherit; font-size: 12px; color: var(--accent); text-decoration: underline; cursor: pointer; }
 .formhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.q { align-self: flex-end; max-width: 80%; padding: 12px 18px; border-radius: 16px 16px 4px 16px; background: var(--bubble); color: var(--on-bubble); }
+.ask-row { align-self: flex-end; max-width: 80%; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.ask-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: .02em; }
+.q { padding: 14px 20px; border-radius: 18px 18px 4px 18px; background: var(--accent); color: var(--on-accent); font-size: 17px; font-weight: 600; line-height: 1.5; box-shadow: 0 2px 8px var(--shadow); overflow-wrap: anywhere; }
 .queries { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
 .chip { padding: 3px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink2); font: 12px var(--mono); }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
@@ -131,7 +130,7 @@ aside h2 { margin: 0; font-size: 15px; }
 <body>
 <header>
   <div class="brand">
-    <div class="logo"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h6M8 11h6"/></svg></div>
+    <div class="logo"><svg role="img" aria-label="โลโก้นาวา ดิจิทัล" width="30" height="30" viewBox="0 0 32 32" fill="currentColor"><path d="M17 3.5v15h9.5C25.6 12 22.4 6.7 17 3.5z"/><path d="M15 7.5v11H7.5c1.3-4.5 3.9-8.2 7.5-11z" opacity=".6"/><path d="M4 20.5h24l-2.7 4.2a2 2 0 0 1-1.7.9H8.4a2 2 0 0 1-1.7-.9z"/><path d="M4 29c2 0 2-1.3 4-1.3s2 1.3 4 1.3 2-1.3 4-1.3 2 1.3 4 1.3 2-1.3 4-1.3 2 1.3 4 1.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".6"/></svg></div>
     <div><b>บริษัท นาวา ดิจิทัล</b><small>ถามระเบียบบริษัท · 24 เอกสาร</small></div>
   </div>
   <div class="tools">
@@ -190,6 +189,7 @@ const ICON = {
   copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
   up: '<path d="M7 11v9H4v-9z"/><path d="M7 11l4-7a2 2 0 0 1 3 2l-1 4h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 16.8 20H7"/>',
   flag: '<path d="M5 21V4h11l-1.5 4L16 12H5"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
 };
 // แต่ละคำถามเป็นหนึ่ง turn ต่อกันลงมาแบบแชต แผงหลักฐานแสดงผลของ turn ที่เลือก (ค่าเริ่มต้นคือ turn ล่าสุด)
 const state = { method: "hybrid", cat: 0, turns: [], active: null, focus: null, metrics: null };
@@ -339,7 +339,8 @@ function feedbackRow(t) {
 }
 
 function renderTurn(t) {
-  const kids = [el("div", { class: "q" }, t.query)];
+  const n = state.turns.indexOf(t) + 1;
+  const kids = [el("div", { class: "ask-row" }, el("span", { class: "ask-label" }, icon("user", 14), `คำถามที่ ${n}`), el("div", { class: "q" }, t.query))];
   if (t.loading) {
     kids.push(el("div", { class: "loading" }, icon("search"), `กำลังค้นด้วย ${nameOf(t.method)}…`));
   } else if (t.error) {
