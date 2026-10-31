@@ -4,100 +4,134 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ถามระเบียบบริษัท</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
+/* หน้าถามตอบ 3 คอลัมน์: หมวดเรื่อง · บทสนทนา · หลักฐานที่ค้นคืน */
 :root {
-  --bg: #F4F6F8; --card: #FFFFFF; --ink: #16202A; --ink2: #2B3743; --muted: #5B6673;
-  --line: #DDE2E8; --soft: #EEF1F4; --accent: #0B5E5E; --accent-soft: #E3F0F0;
-  --ok-bg: #E6F2EE; --ok: #1D5B45; --old-bg: #FDF3E7; --old: #8A4B0C; --info-bg: #EAF0F7; --info: #1F3A5C;
-  --warn-bg: #FBEAEA; --warn: #7A1F1F;
+  --bg: #F4F6F8; --card: #FFFFFF; --ink: #16202A; --ink2: #2B3743; --muted: #5B6673; --icon: #44505C;
+  --line: #DDE2E8; --field: #C9D1DA; --soft: #EEF1F4; --accent: #0B5E5E; --accent-soft: #E3F0F0; --on-accent: #FFFFFF;
+  --bubble: #16202A; --on-bubble: #FFFFFF;
+  --ok-bg: #E6F2EE; --ok: #1D5B45; --old-bg: #FDF3E7; --old: #8A4B0C; --old-ink: #6B3A0A; --old-chip: #F7E2C8;
+  --old-card: #FBFAF7; --old-line: #D9B98C; --old-bar: #C9A47A; --bar: #9AA6B2;
+  --info-bg: #EAF0F7; --info: #1F3A5C; --warn-bg: #FBEAEA; --warn: #7A1F1F; --warn-chip: #F5D5D5;
+  --shadow: rgba(22,32,42,.12); --ring: rgba(11,94,94,.14);
+  --sans: "IBM Plex Sans Thai", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F151B; --card: #18212A; --ink: #E6ECF1; --ink2: #C9D3DC; --muted: #93A0AD; --icon: #AEBAC5;
+  --line: #2A3540; --field: #3A4652; --soft: #222C36; --accent: #4FB8B0; --accent-soft: #163634; --on-accent: #062221;
+  --bubble: #2A3A48; --on-bubble: #F2F6F9;
+  --ok-bg: #16332A; --ok: #8FD6B8; --old-bg: #33260F; --old: #F0C08A; --old-ink: #F3CFA4; --old-chip: #4A3615;
+  --old-card: #1E1B15; --old-line: #7A5A33; --old-bar: #B78B57; --bar: #5E6B78;
+  --info-bg: #182A3D; --info: #A9C6E6; --warn-bg: #3A1A1A; --warn: #F2B3B3; --warn-chip: #552424;
+  --shadow: rgba(0,0,0,.4); --ring: rgba(79,184,176,.22); color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0F151B; --card: #18212A; --ink: #E6ECF1; --ink2: #C9D3DC; --muted: #93A0AD; --icon: #AEBAC5;
+  --line: #2A3540; --field: #3A4652; --soft: #222C36; --accent: #4FB8B0; --accent-soft: #163634; --on-accent: #062221;
+  --bubble: #2A3A48; --on-bubble: #F2F6F9;
+  --ok-bg: #16332A; --ok: #8FD6B8; --old-bg: #33260F; --old: #F0C08A; --old-ink: #F3CFA4; --old-chip: #4A3615;
+  --old-card: #1E1B15; --old-line: #7A5A33; --old-bar: #B78B57; --bar: #5E6B78;
+  --info-bg: #182A3D; --info: #A9C6E6; --warn-bg: #3A1A1A; --warn: #F2B3B3; --warn-chip: #552424;
+  --shadow: rgba(0,0,0,.4); --ring: rgba(79,184,176,.22); color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 "IBM Plex Sans Thai", system-ui, sans-serif; }
-.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--sans); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); }
 svg { flex: none; }
-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 32px; background: var(--card); border-bottom: 1px solid var(--line); }
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); background: var(--card); border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 12px; }
-.logo { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+.logo { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); color: var(--on-accent); display: flex; align-items: center; justify-content: center; }
 .brand b { display: block; font-size: 16px; line-height: 1.3; }
 .brand small { display: block; color: var(--muted); font-size: 12px; line-height: 1.3; }
 .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-.metrics { font-size: 12px; color: var(--muted); }
+.metrics { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .seg { display: flex; padding: 3px; gap: 2px; background: var(--soft); border-radius: 10px; }
-.seg button { border: 0; background: transparent; padding: 8px 14px; min-height: 36px; border-radius: 8px; font: inherit; font-size: 13px; color: #44505C; cursor: pointer; }
-.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(22,32,42,.12); }
+.seg button { border: 0; background: transparent; padding: 8px 14px; min-height: 36px; border-radius: 8px; font: inherit; font-size: 13px; color: var(--icon); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px var(--shadow); }
 .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--ok-bg); color: var(--ok); font-size: 12px; font-weight: 500; }
-.layout { display: flex; flex-wrap: wrap; gap: 24px; padding: 24px 32px; max-width: 1440px; margin: 0 auto; align-items: flex-start; }
+.layout { display: flex; flex-wrap: wrap; gap: 24px; padding-block: 24px; padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); max-width: 1440px; margin: 0 auto; align-items: flex-start; }
 nav { flex: 1 1 220px; max-width: 260px; display: flex; flex-direction: column; gap: 20px; }
 .label { font-size: 12px; font-weight: 600; color: var(--muted); padding: 0 12px 4px; }
 .list { display: flex; flex-direction: column; gap: 4px; }
 nav button { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; border: 0; background: transparent; padding: 10px 12px; min-height: 44px; border-radius: 10px; font: inherit; color: var(--ink); cursor: pointer; }
 nav button span { font-size: 12px; color: var(--muted); }
-nav button[aria-pressed="true"] { background: var(--card); font-weight: 600; box-shadow: 0 1px 2px rgba(22,32,42,.08); }
+nav button[aria-pressed="true"] { background: var(--card); font-weight: 600; box-shadow: 0 1px 2px var(--shadow); }
 nav .sample { font-size: 14px; min-height: 40px; color: var(--ink2); }
 nav .sample[aria-current="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; box-shadow: none; }
 main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 #thread { display: flex; flex-direction: column; gap: 32px; }
 .turn { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 16px; }
-.turn:not(.active) .card { border-color: var(--line); }
 .turn.active .card { border-color: var(--accent); }
 .link { border: 0; background: transparent; padding: 4px 6px; border-radius: 6px; font: inherit; font-size: 12px; color: var(--accent); text-decoration: underline; cursor: pointer; }
 .formhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.q { align-self: flex-end; max-width: 80%; padding: 12px 18px; border-radius: 16px 16px 4px 16px; background: var(--ink); color: #fff; }
+.q { align-self: flex-end; max-width: 80%; padding: 12px 18px; border-radius: 16px 16px 4px 16px; background: var(--bubble); color: var(--on-bubble); }
 .queries { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
-.chip { padding: 3px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink2); font: 12px "IBM Plex Mono", monospace; }
+.chip { padding: 3px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink2); font: 12px var(--mono); }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
 .card p { margin: 0; font-size: 16px; line-height: 1.9; }
 .loading { display: flex; align-items: center; gap: 10px; padding: 18px 22px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; color: var(--muted); font-size: 14px; }
-.cite { border: 0; margin: 0 2px; padding: 0 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font: 12px "IBM Plex Mono", monospace; cursor: pointer; vertical-align: 2px; }
+.cite { border: 0; margin: 0 2px; padding: 0 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font: 12px var(--mono); cursor: pointer; vertical-align: 2px; }
 .note { display: flex; gap: 12px; padding: 12px 16px; border-radius: 12px; font-size: 14px; }
 .note svg { margin-top: 3px; }
 .note.info { background: var(--info-bg); color: var(--info); }
-.note.old { background: var(--old-bg); color: #6B3A0A; }
-.note.old .cite { background: #F7E2C8; color: #6B3A0A; }
+.note.old { background: var(--old-bg); color: var(--old-ink); }
+.note.old .cite { background: var(--old-chip); color: var(--old-ink); }
 .note.warn { background: var(--warn-bg); color: var(--warn); }
-.note.warn .cite { background: #F5D5D5; color: var(--warn); }
+.note.warn .cite { background: var(--warn-chip); color: var(--warn); }
 .cmd { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.cmd code { flex: 1 1 240px; padding: 10px 12px; border-radius: 10px; background: var(--soft); font: 13px "IBM Plex Mono", monospace; overflow-wrap: anywhere; }
+.cmd code { flex: 1 1 240px; padding: 10px 12px; border-radius: 10px; background: var(--soft); font: 13px var(--mono); overflow-wrap: anywhere; }
 .btn { min-height: 44px; padding: 0 18px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; border: 1.5px solid var(--accent); background: var(--card); color: var(--accent); }
-.btn.primary { border: 0; background: var(--accent); color: #fff; }
+.btn.primary { border: 0; background: var(--accent); color: var(--on-accent); }
 .foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid var(--soft); }
 .foot .hint { font-size: 13px; }
 .icons { display: flex; gap: 8px; }
-.icon { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: #44505C; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.icon { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--icon); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .icon[aria-pressed="true"] { border: 1.5px solid var(--accent); background: var(--accent-soft); color: var(--accent); }
 form { display: flex; flex-direction: column; gap: 8px; }
 form label { font-size: 13px; font-weight: 600; color: var(--ink2); }
-.box { display: flex; gap: 8px; padding: 6px; background: var(--card); border: 1.5px solid #C9D1DA; border-radius: 14px; }
+.box { display: flex; gap: 8px; padding: 6px; background: var(--card); border: 1.5px solid var(--field); border-radius: 14px; }
 .box:focus-within { border-color: var(--accent); }
 .box input { flex: 1; min-width: 0; border: 0; outline: none; font: inherit; padding: 10px 12px; background: transparent; color: var(--ink); }
 .hint { font-size: 12px; color: var(--muted); }
-aside { flex: 1 1 320px; max-width: 380px; display: flex; flex-direction: column; gap: 12px; }
+aside { flex: 1 1 320px; max-width: 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 aside h2 { margin: 0; font-size: 15px; }
 .head { display: flex; justify-content: space-between; align-items: baseline; }
 #chunks { display: flex; flex-direction: column; gap: 12px; }
 .chunk { text-align: left; font: inherit; color: var(--ink); cursor: pointer; width: 100%; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--card); border: 1px solid var(--line); }
 .chunk.used { border: 1.5px solid var(--accent); }
-.chunk.old { background: #FBFAF7; border: 1px dashed #D9B98C; }
-.chunk.focus { border: 2px solid var(--accent); box-shadow: 0 0 0 4px rgba(11,94,94,.12); }
+.chunk.old { background: var(--old-card); border: 1px dashed var(--old-line); }
+.chunk.focus { border: 2px solid var(--accent); box-shadow: 0 0 0 4px var(--ring); }
 .chunk .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-.badge { padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; background: var(--soft); color: #44505C; }
+.badge { padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; background: var(--soft); color: var(--icon); }
 .badge.used { background: var(--ok-bg); color: var(--ok); }
 .badge.old { background: var(--old-bg); color: var(--old); }
 .chunk .meta { font-size: 13px; color: var(--muted); }
 .chunk .text { font-size: 13px; color: var(--ink2); white-space: pre-line; }
-.bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .bar i { flex: 1; height: 6px; border-radius: 3px; background: var(--soft); }
-.bar i b { display: block; height: 6px; border-radius: 3px; background: #9AA6B2; }
+.bar i b { display: block; height: 6px; border-radius: 3px; background: var(--bar); }
 .chunk.used .bar i b { background: var(--accent); }
-.chunk.old .bar i b { background: #C9A47A; }
+.chunk.old .bar i b { background: var(--old-bar); }
 .empty { margin: 0; color: var(--muted); font-size: 14px; }
-@media (max-width: 720px) { header, .layout { padding-left: 16px; padding-right: 16px; } nav, aside { max-width: none; } .card { padding: 18px; } }
+@media (max-width: 720px) {
+  header, .layout { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  nav, aside { max-width: none; } .card { padding: 18px; }
+}
+.waiting { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border-radius: 12px; background: var(--info-bg); color: var(--info); font-size: 14px; }
+.waiting > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.waiting .hint { color: var(--info); opacity: .85; }
+.dot { flex: none; width: 10px; height: 10px; margin-top: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
 <header>
   <div class="brand">
-    <div class="logo"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h6M8 11h6"/></svg></div>
+    <div class="logo"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h6M8 11h6"/></svg></div>
     <div><b>บริษัท นาวา ดิจิทัล</b><small>ถามระเบียบบริษัท · 24 เอกสาร</small></div>
   </div>
   <div class="tools">
@@ -319,12 +353,13 @@ function renderTurn(t) {
     if (t.answer) {
       card.append(...answerBody(t), feedbackRow(t));
     } else {
-      const active = t.results.filter((r) => r.status === "active");
-      const cmd = `/ask ${t.query}`;
+      const cmd = "/ask-web";
       card.append(
-        note("info", "info", active.length
-          ? `ยังไม่มีคำตอบที่บันทึกไว้ · พบ ${active.length} chunk ฉบับ active (ดูแผงขวา) ให้ Claude Code สร้างคำตอบพร้อมอ้าง chunk_id ด้วยคำสั่งนี้`
-          : "ไม่พบ chunk ฉบับ active ที่เกี่ยวข้อง ถาม Claude Code ด้วยคำสั่งนี้เพื่อให้แนะนำฝ่ายที่ต้องติดต่อ"),
+        t.queueError
+          ? note("warn", "warn", "ส่งคำถามเข้าคิวไม่สำเร็จ: " + t.queueError)
+          : el("div", { class: "waiting" }, el("span", { class: "dot", "aria-hidden": "true" }),
+            el("span", {}, el("b", {}, "ส่งคำถามให้ Claude Code แล้ว · รอคำตอบ"),
+              el("span", { class: "hint" }, "คำตอบจะขึ้นตรงนี้เองเมื่อตอบเสร็จ ถ้ายังไม่มีใครตอบ ให้พิมพ์คำสั่งนี้ใน Claude Code"))),
         el("div", { class: "cmd" }, el("code", {}, cmd), el("button", { type: "button", class: "btn", onclick: async (e) => {
           const b = e.target;
           try { await navigator.clipboard.writeText(cmd); b.textContent = "คัดลอกแล้ว"; } catch { b.textContent = "คัดลอกไม่ได้"; }
@@ -336,17 +371,47 @@ function renderTurn(t) {
   t.node.replaceChildren(...kids);
 }
 
-async function getJSON(url) {
-  const r = await fetch(url);
+async function getJSON(url, init) {
+  const r = await fetch(url, init);
   const d = await r.json();
   if (!r.ok) throw new Error(d.error || r.statusText);
   return d;
 }
 
+const POLL_MS = 3000;
+
+// ยังไม่มีคำตอบ: ส่งคำถามเข้าคิวให้ Claude Code (/ask-web) แล้วถามซ้ำจนคำตอบมา
+async function waitForAnswer(t, seq) {
+  try {
+    const r = await getJSON("/api/questions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: t.query }) });
+    if (r.status === "answered") return checkAnswer(t, seq);
+  } catch (e) {
+    t.queueError = e.message;
+    return renderTurn(t);
+  }
+  t.poll = setTimeout(() => checkAnswer(t, seq), POLL_MS);
+}
+
+async function checkAnswer(t, seq) {
+  if (seq !== t.seq || !state.turns.includes(t)) return;
+  try {
+    const { answer } = await getJSON("/api/answer?" + new URLSearchParams({ q: t.query }));
+    if (seq !== t.seq) return;
+    if (answer) {
+      t.answer = answer;
+      renderTurn(t);
+      if (state.active === t) renderChunks();
+      return;
+    }
+  } catch { /* เซิร์ฟเวอร์อาจรีสตาร์ต ลองใหม่รอบหน้า */ }
+  t.poll = setTimeout(() => checkAnswer(t, seq), POLL_MS);
+}
+
 // ค้นให้ turn นี้ด้วยวิธีที่เลือกอยู่ ถ้า turn ถูกสั่งค้นซ้ำระหว่างรอ ผลเก่าจะถูกทิ้ง
 async function run(t) {
   const seq = (t.seq || 0) + 1;
-  Object.assign(t, { seq, method: state.method, loading: true, error: null, vote: "none" });
+  clearTimeout(t.poll);
+  Object.assign(t, { seq, method: state.method, loading: true, error: null, queueError: null, vote: "none" });
   renderTurn(t);
   if (state.active === t) renderChunks();
   try {
@@ -361,6 +426,7 @@ async function run(t) {
   t.loading = false;
   renderTurn(t);
   if (state.active === t) renderChunks();
+  if (!t.error && !t.answer) waitForAnswer(t, seq);
 }
 
 function ask(q) {
@@ -378,6 +444,7 @@ function ask(q) {
 }
 
 function clearChat() {
+  state.turns.forEach((t) => clearTimeout(t.poll));
   state.turns = [];
   state.active = null;
   state.focus = null;
