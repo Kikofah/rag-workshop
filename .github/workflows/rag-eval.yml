@@ -27,3 +27,10 @@ jobs:
       - name: วัดผลการค้นคืน (dev)
         # rag.evaluate เขียนตารางลง $GITHUB_STEP_SUMMARY เอง และ exit 1 ถ้า hit@4 < 0.9
         run: python -m rag.evaluate --split dev --method tfidf -k 4 --min-hit 0.9
+
+      - name: pytest (เป้าหมาย W4)
+        run: pytest -q -m w4
+
+      - name: วัดผลการค้นคืน hybrid (dev)
+        # กรอง superseded ออก (ค่าเริ่มต้นของ method อื่นที่ไม่ใช่ tfidf) · exit 1 ถ้า hit@4 < 0.9
+        run: python -m rag.evaluate --split dev --method hybrid -k 4 --min-hit 0.9
