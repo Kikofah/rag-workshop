@@ -9,10 +9,12 @@
   --bg: #F4F6F8; --card: #FFFFFF; --ink: #16202A; --ink2: #2B3743; --muted: #5B6673;
   --line: #DDE2E8; --soft: #EEF1F4; --accent: #0B5E5E; --accent-soft: #E3F0F0;
   --ok-bg: #E6F2EE; --ok: #1D5B45; --old-bg: #FDF3E7; --old: #8A4B0C; --info-bg: #EAF0F7; --info: #1F3A5C;
+  --warn-bg: #FBEAEA; --warn: #7A1F1F;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 "IBM Plex Sans Thai", system-ui, sans-serif; }
 .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+svg { flex: none; }
 header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 32px; background: var(--card); border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 12px; }
 .logo { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
@@ -27,24 +29,37 @@ header { display: flex; flex-wrap: wrap; align-items: center; justify-content: s
 .layout { display: flex; flex-wrap: wrap; gap: 24px; padding: 24px 32px; max-width: 1440px; margin: 0 auto; align-items: flex-start; }
 nav { flex: 1 1 220px; max-width: 260px; display: flex; flex-direction: column; gap: 20px; }
 .label { font-size: 12px; font-weight: 600; color: var(--muted); padding: 0 12px 4px; }
-nav .list { display: flex; flex-direction: column; gap: 4px; }
+.list { display: flex; flex-direction: column; gap: 4px; }
 nav button { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; border: 0; background: transparent; padding: 10px 12px; min-height: 44px; border-radius: 10px; font: inherit; color: var(--ink); cursor: pointer; }
 nav button span { font-size: 12px; color: var(--muted); }
 nav button[aria-pressed="true"] { background: var(--card); font-weight: 600; box-shadow: 0 1px 2px rgba(22,32,42,.08); }
 nav .sample { font-size: 14px; min-height: 40px; color: var(--ink2); }
+nav .sample[aria-current="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; box-shadow: none; }
 main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+#thread { display: flex; flex-direction: column; gap: 12px; }
 .q { align-self: flex-end; max-width: 80%; padding: 12px 18px; border-radius: 16px 16px 4px 16px; background: var(--ink); color: #fff; }
-.queries { font-size: 12px; color: var(--muted); }
+.queries { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+.chip { padding: 3px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink2); font: 12px "IBM Plex Mono", monospace; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
-.card p { margin: 0; font-size: 16px; line-height: 1.8; white-space: pre-line; }
-.cite { border: 0; padding: 0 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font: 12px "IBM Plex Mono", monospace; cursor: pointer; vertical-align: 2px; }
-.note { padding: 12px 16px; border-radius: 12px; font-size: 14px; }
+.card p { margin: 0; font-size: 16px; line-height: 1.9; }
+.loading { display: flex; align-items: center; gap: 10px; padding: 18px 22px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; color: var(--muted); font-size: 14px; }
+.cite { border: 0; margin: 0 2px; padding: 0 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font: 12px "IBM Plex Mono", monospace; cursor: pointer; vertical-align: 2px; }
+.note { display: flex; gap: 12px; padding: 12px 16px; border-radius: 12px; font-size: 14px; }
+.note svg { margin-top: 3px; }
 .note.info { background: var(--info-bg); color: var(--info); }
 .note.old { background: var(--old-bg); color: #6B3A0A; }
+.note.old .cite { background: #F7E2C8; color: #6B3A0A; }
+.note.warn { background: var(--warn-bg); color: var(--warn); }
+.note.warn .cite { background: #F5D5D5; color: var(--warn); }
 .cmd { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .cmd code { flex: 1 1 240px; padding: 10px 12px; border-radius: 10px; background: var(--soft); font: 13px "IBM Plex Mono", monospace; overflow-wrap: anywhere; }
 .btn { min-height: 44px; padding: 0 18px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; border: 1.5px solid var(--accent); background: var(--card); color: var(--accent); }
 .btn.primary { border: 0; background: var(--accent); color: #fff; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid var(--soft); }
+.foot .hint { font-size: 13px; }
+.icons { display: flex; gap: 8px; }
+.icon { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: #44505C; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.icon[aria-pressed="true"] { border: 1.5px solid var(--accent); background: var(--accent-soft); color: var(--accent); }
 form { display: flex; flex-direction: column; gap: 8px; }
 form label { font-size: 13px; font-weight: 600; color: var(--ink2); }
 .box { display: flex; gap: 8px; padding: 6px; background: var(--card); border: 1.5px solid #C9D1DA; border-radius: 14px; }
@@ -54,21 +69,23 @@ form label { font-size: 13px; font-weight: 600; color: var(--ink2); }
 aside { flex: 1 1 320px; max-width: 380px; display: flex; flex-direction: column; gap: 12px; }
 aside h2 { margin: 0; font-size: 15px; }
 .head { display: flex; justify-content: space-between; align-items: baseline; }
+#chunks { display: flex; flex-direction: column; gap: 12px; }
 .chunk { text-align: left; font: inherit; color: var(--ink); cursor: pointer; width: 100%; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--card); border: 1px solid var(--line); }
+.chunk.used { border: 1.5px solid var(--accent); }
 .chunk.old { background: #FBFAF7; border: 1px dashed #D9B98C; }
 .chunk.focus { border: 2px solid var(--accent); box-shadow: 0 0 0 4px rgba(11,94,94,.12); }
 .chunk .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
 .badge { padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; background: var(--soft); color: #44505C; }
-.badge.active { background: var(--ok-bg); color: var(--ok); }
+.badge.used { background: var(--ok-bg); color: var(--ok); }
 .badge.old { background: var(--old-bg); color: var(--old); }
 .chunk .meta { font-size: 13px; color: var(--muted); }
 .chunk .text { font-size: 13px; color: var(--ink2); white-space: pre-line; }
 .bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
 .bar i { flex: 1; height: 6px; border-radius: 3px; background: var(--soft); }
 .bar i b { display: block; height: 6px; border-radius: 3px; background: #9AA6B2; }
+.chunk.used .bar i b { background: var(--accent); }
 .chunk.old .bar i b { background: #C9A47A; }
-.chunk:not(.old) .bar i b.top1 { background: var(--accent); }
-.empty { color: var(--muted); font-size: 14px; }
+.empty { margin: 0; color: var(--muted); font-size: 14px; }
 @media (max-width: 720px) { header, .layout { padding-left: 16px; padding-right: 16px; } nav, aside { max-width: none; } .card { padding: 18px; } }
 </style>
 </head>
@@ -84,7 +101,7 @@ aside h2 { margin: 0; font-size: 15px; }
       <button type="button" data-method="tfidf" aria-pressed="false">TF-IDF</button>
       <button type="button" data-method="hybrid" aria-pressed="true">Hybrid</button>
     </div>
-    <span class="pill">ประมวลผลในเครื่อง ไม่เรียก API</span>
+    <span class="pill"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>ประมวลผลในเครื่อง ไม่เรียก API</span>
   </div>
 </header>
 
@@ -95,20 +112,21 @@ aside h2 { margin: 0; font-size: 15px; }
   </nav>
 
   <main>
-    <div id="thread"><p class="empty">พิมพ์คำถามด้านล่าง หรือเลือกตัวอย่างคำถามจากแถบซ้าย</p></div>
+    <div id="thread"><p class="empty">พิมพ์คำถามด้านล่าง หรือกดตัวอย่างคำถามจากแถบซ้าย</p></div>
     <form id="ask">
       <label for="q">ถามเรื่องระเบียบบริษัท</label>
       <div class="box">
-        <input id="q" type="text" autocomplete="off" placeholder="เช่น ลาพักร้อนได้กี่วัน">
-        <button class="btn primary" type="submit">ค้น</button>
+        <input id="q" type="text" autocomplete="off" placeholder="เช่น เบิกค่าทำฟันได้เท่าไร">
+        <button class="btn primary" type="submit">ถาม</button>
       </div>
-      <span class="hint">ระบบค้นคืนจากเอกสารในเครื่อง คำตอบสร้างโดย Claude Code ผ่านคำสั่ง /ask</span>
+      <span class="hint">คำตอบมาจากเอกสารฉบับที่มีผลบังคับใช้ (active) เท่านั้น และอ้าง chunk ทุกข้อเท็จจริง</span>
     </form>
   </main>
 
   <aside aria-label="หลักฐานที่ค้นคืน">
     <div class="head"><h2>หลักฐานที่ค้นคืน</h2><span class="hint" id="k-label"></span></div>
     <div id="chunks"><p class="empty">ยังไม่มีผลค้น</p></div>
+    <span class="hint">กดการ์ดเพื่อเปิดข้อความ · กดป้ายอ้างอิงในคำตอบเพื่อไฮไลต์</span>
   </aside>
 </div>
 
@@ -123,7 +141,17 @@ const CATS = [
   { label: "บริการลูกค้า", dept: "บริการลูกค้า", samples: ["ลูกค้าขอคืนเงินได้ภายในกี่วัน"] },
 ];
 const K = 4;
-const state = { method: "hybrid", cat: 0, query: "", results: [], metrics: null };
+const CITE_RE = /(\[[A-Z]{2}-[\w-]+#\d+\])/;
+const ICON = {
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  history: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 8v4l3 2"/>',
+  warn: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  up: '<path d="M7 11v9H4v-9z"/><path d="M7 11l4-7a2 2 0 0 1 3 2l-1 4h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 16.8 20H7"/>',
+  flag: '<path d="M5 21V4h11l-1.5 4L16 12H5"/>',
+};
+const state = { method: "hybrid", cat: 0, query: "", expanded: "", results: [], answer: null, focus: null, vote: "none", seq: 0, metrics: null };
 const $ = (id) => document.getElementById(id);
 
 // สร้าง element ด้วย textContent เสมอ ข้อความในเอกสารเป็นข้อมูล ไม่ใช่ HTML
@@ -138,13 +166,24 @@ function el(tag, props = {}, ...kids) {
   return n;
 }
 
+function icon(name, size = 18) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  for (const [k, v] of Object.entries({ "aria-hidden": "true", width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" })) s.setAttribute(k, v);
+  s.innerHTML = ICON[name]; // ค่าคงที่ในไฟล์นี้เท่านั้น
+  return s;
+}
+
+const methodName = () => (state.method === "hybrid" ? "Hybrid" : "TF-IDF");
+const citesIn = (text) => [...text.matchAll(/\[([A-Z]{2}-[\w-]+#\d+)\]/g)].map((m) => m[1]);
+const byId = (id) => state.results.find((r) => r.chunk_id === id);
+
 function renderCats() {
   $("cats").replaceChildren(...CATS.map((c, i) => el("button",
     { type: "button", "aria-pressed": String(i === state.cat), onclick: () => { state.cat = i; renderCats(); } },
     c.label, el("span", {}, c.dept))));
   $("sample-label").textContent = "ตัวอย่างคำถาม · " + CATS[state.cat].label;
   $("samples").replaceChildren(...CATS[state.cat].samples.map((s) =>
-    el("button", { type: "button", class: "sample", onclick: () => ask(s) }, s)));
+    el("button", { type: "button", class: "sample", "aria-current": String(s === state.query), onclick: () => ask(s) }, s)));
 }
 
 function renderMetrics() {
@@ -156,67 +195,122 @@ function renderMetrics() {
 }
 
 function focusChunk(id) {
-  document.querySelectorAll(".chunk").forEach((c) => {
-    const on = c.dataset.id === id;
-    c.classList.toggle("focus", on);
-    if (on) { c.querySelector(".text").hidden = false; c.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
-  });
+  state.focus = id;
+  renderChunks();
+  document.querySelector(".chunk.focus")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
-// แปลง "... [HR-01#1]" เป็นข้อความ + ปุ่มอ้างอิง
-function withCitations(text) {
-  const p = el("p");
-  for (const part of text.split(/(\[[A-Z]{2}-[\w-]+#\d+\])/)) {
+// แปลง "ข้อความ [HR-01#1]" เป็นข้อความ + ปุ่มอ้างอิง
+function withCitations(text, tag = "p") {
+  const n = el(tag);
+  for (const part of text.split(CITE_RE)) {
     const m = part.match(/^\[(.+)\]$/);
-    p.append(m ? el("button", { type: "button", class: "cite", onclick: () => focusChunk(m[1]) }, m[1]) : part);
+    n.append(m ? el("button", { type: "button", class: "cite", onclick: () => focusChunk(m[1]) }, m[1]) : part);
   }
-  return p;
+  return n;
+}
+
+function note(kind, iconName, ...kids) {
+  return el("div", { class: "note " + kind }, icon(iconName), el("span", {}, ...kids));
 }
 
 function renderChunks() {
   const rs = state.results;
-  $("k-label").textContent = rs.length ? `k = ${K} · ${state.method === "hybrid" ? "Hybrid" : "TF-IDF"}` : "";
+  $("k-label").textContent = rs.length ? `k = ${K} · ${methodName()}` : "";
   if (!rs.length) { $("chunks").replaceChildren(el("p", { class: "empty" }, state.query ? "ไม่พบ chunk" : "ยังไม่มีผลค้น")); return; }
+  const used = new Set(state.answer ? citesIn(state.answer.answer) : []);
   const top = Math.max(...rs.map((r) => r.score)) || 1;
-  const firstActive = rs.find((r) => r.status === "active");
   $("chunks").replaceChildren(...rs.map((r) => {
     const old = r.status !== "active";
+    const isUsed = !old && used.has(r.chunk_id);
+    const focused = state.focus === r.chunk_id;
     const text = el("span", { class: "text" }, r.text.split("\n").slice(1).join("\n"));
-    text.hidden = true;
-    const bar = el("b", { style: `width:${Math.round((r.score / top) * 100)}%`, class: r === firstActive ? "top1" : "" });
-    return el("button", { type: "button", class: "chunk" + (old ? " old" : ""), "data-id": r.chunk_id, onclick: () => { text.hidden = !text.hidden; } },
-      el("span", { class: "top" }, el("span", { class: "mono" }, r.chunk_id),
-        el("span", { class: "badge " + (old ? "old" : "active") }, old ? `${r.status} · ใช้เทียบเท่านั้น` : "active")),
+    text.hidden = !focused;
+    const badge = old ? `${r.status} · ใช้เทียบเท่านั้น` : isUsed ? "active · ใช้ในคำตอบ" : state.answer ? "active · ไม่ได้ใช้" : "active";
+    return el("button", {
+      type: "button", class: "chunk" + (old ? " old" : "") + (isUsed ? " used" : "") + (focused ? " focus" : ""),
+      "aria-expanded": String(focused), onclick: (e) => { text.hidden = !text.hidden; e.currentTarget.setAttribute("aria-expanded", String(!text.hidden)); },
+    },
+      el("span", { class: "top" }, el("span", { class: "mono" }, r.chunk_id), el("span", { class: "badge " + (old ? "old" : isUsed ? "used" : "") }, badge)),
       el("span", { class: "meta" }, `${r.title} · ${r.section} · v${r.version} · มีผล ${r.effective_date}`),
       text,
-      el("span", { class: "bar" }, el("i", {}, bar), el("span", { class: "mono" }, r.score.toFixed(3))));
+      el("span", { class: "bar" }, el("i", {}, el("b", { style: `width:${Math.round((r.score / top) * 100)}%` })), el("span", { class: "mono" }, r.score.toFixed(3))));
   }));
 }
 
-function renderThread(saved) {
-  const q = state.query;
+// คำตอบรูปแบบเดียวกับ /ask: บรรทัดคำตอบ, "หมายเหตุ: ...", "⚠️ ...", "แหล่งอ้างอิง: ..."
+function answerBody(answer) {
+  const out = [];
+  for (const line of answer.split("\n").map((l) => l.trim()).filter(Boolean)) {
+    if (line.startsWith("แหล่งอ้างอิง")) continue;
+    if (line.startsWith("หมายเหตุ")) out.push(note("old", "history", withCitations(line.replace(/^หมายเหตุ:\s*/, ""), "span")));
+    else if (line.startsWith("⚠️")) out.push(note("warn", "warn", withCitations(line.replace(/^⚠️\s*/, ""), "span")));
+    else out.push(withCitations(line));
+  }
+  return out;
+}
+
+// ไม่มีคำตอบที่บันทึกไว้: แจ้งฉบับเดิมและประกาศที่อยู่ในผลค้น เพื่อให้ตรวจก่อนตอบ
+function retrievalNotes() {
   const rs = state.results;
   const active = rs.filter((r) => r.status === "active");
-  const changed = rs.filter((r) => r.status !== "active" && active.some((a) => a.title.startsWith(r.title.replace(/ \(.*\)$/, "")) && a.section === r.section));
-  const cmd = `/ask ${q}`;
-  const copyBtn = el("button", { type: "button", class: "btn", onclick: async (e) => {
-    try { await navigator.clipboard.writeText(cmd); e.target.textContent = "คัดลอกแล้ว"; } catch { e.target.textContent = "คัดลอกไม่ได้"; }
-  } }, "คัดลอกคำสั่ง");
+  const out = [];
+  for (const r of rs.filter((r) => r.status !== "active")) {
+    const base = r.title.replace(/\s*\(.*\)$/, "");
+    if (active.some((a) => a.title === base && a.section === r.section)) {
+      out.push(note("old", "history", "มีฉบับเดิมในผลค้น ", el("button", { type: "button", class: "cite", onclick: () => focusChunk(r.chunk_id) }, r.chunk_id), ` (มีผล ${r.effective_date}) ใช้เทียบเท่านั้น`));
+    }
+  }
+  for (const r of active.filter((r) => r.doc_id.startsWith("AN-"))) {
+    out.push(note("info", "info", "มีประกาศที่เกี่ยวข้อง ", el("button", { type: "button", class: "cite", onclick: () => focusChunk(r.chunk_id) }, r.chunk_id), ` มีผล ${r.effective_date}`));
+  }
+  return out;
+}
 
+function feedbackRow() {
+  const a = state.answer;
+  const firstId = citesIn(a.answer).find((id) => byId(id)?.status === "active") || citesIn(a.answer)[0];
+  const c = firstId && byId(firstId);
+  const status = el("span", { class: "hint" }, firstId ? `แหล่งอ้างอิง: ${firstId}${c ? ` · ${c.title} · ${c.section}` : ""}` : "");
+  const vote = async (v, btn) => {
+    state.vote = state.vote === v ? "none" : v;
+    btn.parentElement.querySelectorAll("[data-vote]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.vote === state.vote)));
+    try {
+      await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: state.query, vote: state.vote, method: state.method }) });
+      status.textContent = state.vote === "up" ? "ขอบคุณสำหรับความเห็น" : state.vote === "down" ? "บันทึกว่าคำตอบนี้ไม่ถูกต้องแล้ว" : "ยกเลิกความเห็นแล้ว";
+    } catch { status.textContent = "บันทึกความเห็นไม่สำเร็จ"; }
+  };
+  const iconBtn = (name, label, extra = {}) => el("button", { type: "button", class: "icon", "aria-label": label, ...extra }, icon(name));
+  const copy = iconBtn("copy", "คัดลอกคำตอบ", { onclick: async (e) => {
+    try { await navigator.clipboard.writeText(a.answer); e.currentTarget.setAttribute("aria-pressed", "true"); status.textContent = "คัดลอกคำตอบแล้ว"; }
+    catch { status.textContent = "คัดลอกไม่ได้"; }
+  } });
+  const up = iconBtn("up", "คำตอบมีประโยชน์", { "data-vote": "up", "aria-pressed": "false", onclick: (e) => vote("up", e.currentTarget) });
+  const down = iconBtn("flag", "รายงานคำตอบไม่ถูกต้อง", { "data-vote": "down", "aria-pressed": "false", onclick: (e) => vote("down", e.currentTarget) });
+  return el("div", { class: "foot" }, status, el("div", { class: "icons" }, copy, up, down));
+}
+
+function renderThread() {
+  const q = state.query;
   const card = el("article", { class: "card", "aria-label": "คำตอบ" });
-  if (saved) {
-    card.append(withCitations(saved.answer), el("span", { class: "hint" }, "คำตอบที่ /ask-eval บันทึกไว้ใน out/answers_dev.jsonl"));
+  if (state.answer) {
+    card.append(...answerBody(state.answer.answer), feedbackRow());
   } else {
-    card.append(el("div", { class: "note info" },
-      active.length ? `พบ ${active.length} chunk ฉบับ active ที่เกี่ยวข้อง (ดูแผงขวา) ให้ Claude Code สร้างคำตอบพร้อมอ้าง chunk_id ด้วยคำสั่งนี้` : "ไม่พบ chunk ฉบับ active ที่เกี่ยวข้อง"),
-      el("div", { class: "cmd" }, el("code", {}, cmd), copyBtn));
+    const active = state.results.filter((r) => r.status === "active");
+    const cmd = `/ask ${q}`;
+    card.append(
+      note("info", "info", active.length
+        ? `ยังไม่มีคำตอบที่บันทึกไว้ · พบ ${active.length} chunk ฉบับ active (ดูแผงขวา) ให้ Claude Code สร้างคำตอบพร้อมอ้าง chunk_id ด้วยคำสั่งนี้`
+        : "ไม่พบ chunk ฉบับ active ที่เกี่ยวข้อง ถาม Claude Code ด้วยคำสั่งนี้เพื่อให้แนะนำฝ่ายที่ต้องติดต่อ"),
+      el("div", { class: "cmd" }, el("code", {}, cmd), el("button", { type: "button", class: "btn", onclick: async (e) => {
+        try { await navigator.clipboard.writeText(cmd); e.target.textContent = "คัดลอกแล้ว"; } catch { e.target.textContent = "คัดลอกไม่ได้"; }
+      } }, "คัดลอกคำสั่ง")),
+      ...retrievalNotes());
   }
-  for (const c of changed) {
-    card.append(el("div", { class: "note old" }, "มีฉบับเดิมในผลค้น ", el("button", { type: "button", class: "cite", onclick: () => focusChunk(c.chunk_id) }, c.chunk_id),
-      ` (มีผล ${c.effective_date}) ตอบจากฉบับ active เท่านั้น`));
-  }
-  $("thread").replaceChildren(el("div", { class: "q" }, q), el("div", { class: "queries" }, `ค้นด้วย ${state.method === "hybrid" ? "Hybrid" : "TF-IDF"} · ${rs.length} chunk`), card);
-  card.style.marginTop = "12px";
+  const queries = el("div", { class: "queries" }, el("span", {}, "คำค้น"), el("span", { class: "chip" }, q));
+  if (state.expanded && state.expanded !== q) queries.append(el("span", { class: "chip" }, "ขยาย · " + state.expanded));
+  queries.append(el("span", {}, `· ${methodName()} · ${state.results.length} chunk` + (state.answer ? ` · คำตอบที่บันทึกไว้ (${state.answer.source})` : "")));
+  $("thread").replaceChildren(el("div", { class: "q" }, q), queries, card);
 }
 
 async function getJSON(url) {
@@ -229,21 +323,26 @@ async function getJSON(url) {
 async function ask(q) {
   q = q.trim();
   if (!q) return;
-  state.query = q;
+  const seq = ++state.seq; // คำขอที่ช้ากว่าจะไม่ทับผลของคำถามล่าสุด
+  Object.assign(state, { query: q, focus: null, vote: "none" });
   $("q").value = "";
-  $("thread").replaceChildren(el("p", { class: "empty" }, "กำลังค้น…"));
+  renderCats();
+  $("thread").replaceChildren(el("div", { class: "q" }, q), el("div", { class: "loading" }, icon("search"), `กำลังค้นด้วย ${methodName()}…`));
   try {
     const p = new URLSearchParams({ q, k: K, method: state.method });
     const [res, ans] = await Promise.all([getJSON("/api/retrieve?" + p), getJSON("/api/answer?" + new URLSearchParams({ q }))]);
-    state.results = res.results;
+    if (seq !== state.seq) return;
+    Object.assign(state, { results: res.results, expanded: res.expanded, answer: ans.answer });
     renderChunks();
-    renderThread(ans.answer);
+    renderThread();
   } catch (e) {
-    $("thread").replaceChildren(el("div", { class: "note old" }, "ค้นไม่สำเร็จ: " + e.message));
+    if (seq !== state.seq) return;
+    $("thread").replaceChildren(el("div", { class: "q" }, q), note("warn", "warn", "ค้นไม่สำเร็จ: " + e.message));
   }
 }
 
 document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
+  if (state.method === b.dataset.method) return;
   state.method = b.dataset.method;
   renderMetrics();
   if (state.query) ask(state.query);

@@ -5,23 +5,33 @@ python -m rag.web [--port 8000]
 - GET /                     หน้าเว็บ (rag/static/index.html)
 - GET /api/retrieve?q=..&k=4&method=hybrid   chunk ที่ค้นได้ (รวมฉบับ superseded ไว้เทียบ)
 - GET /api/metrics          hit@1 / hit@4 / MRR ของชุด dev ทั้งสองวิธี
-- GET /api/answer?q=..      คำตอบที่ /ask-eval บันทึกไว้ใน out/answers_dev.jsonl (ถ้าตรงกับคำถาม dev)
+- GET /api/answer?q=..      คำตอบที่ Claude Code บันทึกไว้ (out/answers_web.jsonl หรือ out/answers_dev.jsonl)
+- POST /api/feedback        บันทึกความเห็นต่อคำตอบลง out/feedback.jsonl
 
-การสร้างคำตอบใหม่ยังทำโดย Claude Code ผ่าน /ask หน้าเว็บจึงมีปุ่มคัดลอกคำสั่งให้
+การสร้างคำตอบใหม่ยังทำโดย Claude Code ผ่าน /ask แล้วบันทึกลง out/answers_web.jsonl
+บรรทัดละ {"question": "...", "answer": "...", "citations": [...]} หน้าเว็บมีปุ่มคัดลอกคำสั่งให้
 """
 import argparse
 import json
+from datetime import datetime, timezone
 from functools import lru_cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from threading import Lock
 from urllib.parse import parse_qs, urlparse
 
 from rag.evaluate import ROOT, evaluate, load_questions
-from rag.retrieve import METHODS, Retriever
+from rag.retrieve import METHODS, Retriever, expand_query
 
 STATIC = Path(__file__).resolve().parent / "static"
-ANSWERS = ROOT / "out" / "answers_dev.jsonl"
+OUT = ROOT / "out"
+ANSWERS = OUT / "answers_dev.jsonl"
+WEB_ANSWERS = OUT / "answers_web.jsonl"
+FEEDBACK = OUT / "feedback.jsonl"
+VOTES = ("up", "down", "none")
 MAX_K = 10
+MAX_BODY = 4096
+_feedback_lock = Lock()
 
 
 @lru_cache(maxsize=None)
@@ -42,18 +52,43 @@ def dev_metrics() -> dict:
     return {m: evaluate(get_retriever(m), qs, 4, include_superseded=m == "tfidf") for m in METHODS}
 
 
+def _norm(text: str) -> str:
+    return "".join(text.lower().split()).rstrip("?？")
+
+
+def _jsonl(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
 def saved_answer(query: str) -> dict | None:
-    if not ANSWERS.exists():
+    """หาคำตอบที่บันทึกไว้ของคำถามนี้ (เทียบแบบไม่สนช่องว่าง) ไม่พบคืน None"""
+    key = _norm(query)
+    if not key:
         return None
-    qid = next((q["qid"] for q in load_questions("dev") if q["question"].strip() == query.strip()), None)
+    # บรรทัดหลังสุดชนะ เพื่อให้คำตอบที่ /ask เขียนทับทีหลังมีผล
+    for a in reversed(_jsonl(WEB_ANSWERS)):
+        if _norm(a.get("question", "")) == key:
+            return {**a, "source": "web"}
+    qid = next((q["qid"] for q in load_questions("dev") if _norm(q["question"]) == key), None)
     if qid is None:
         return None
-    for line in ANSWERS.read_text(encoding="utf-8").splitlines():
-        if line.strip():
-            a = json.loads(line)
-            if a.get("qid") == qid:
-                return a
-    return None
+    a = next((a for a in _jsonl(ANSWERS) if a.get("qid") == qid), None)
+    return {**a, "question": query, "source": "dev"} if a else None
+
+
+def save_feedback(data: dict) -> dict:
+    vote = data.get("vote")
+    question = str(data.get("question", "")).strip()
+    if vote not in VOTES or not question:
+        raise ValueError(f"ต้องมี question และ vote เป็น {', '.join(VOTES)}")
+    row = {"at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "question": question[:500],
+           "vote": vote, "method": str(data.get("method", ""))[:20]}
+    OUT.mkdir(exist_ok=True)
+    with _feedback_lock, FEEDBACK.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    return row
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -82,13 +117,31 @@ class Handler(BaseHTTPRequestHandler):
                 k = int(p.get("k", 4))
             except ValueError:
                 return self._json({"error": "k ต้องเป็นตัวเลข"}, 400)
-            self._json({"query": q, "method": method, "results": retrieve(q, k, method)})
+            expanded = expand_query(q) if method == "hybrid" else q
+            self._json({"query": q, "expanded": expanded, "method": method, "results": retrieve(q, k, method)})
         elif url.path == "/api/metrics":
             self._json(dev_metrics())
         elif url.path == "/api/answer":
             self._json({"answer": saved_answer(p.get("q", ""))})
         else:
             self._json({"error": "not found"}, 404)
+
+    def do_POST(self) -> None:
+        if urlparse(self.path).path != "/api/feedback":
+            return self._json({"error": "not found"}, 404)
+        try:
+            size = int(self.headers.get("Content-Length", 0))
+        except ValueError:
+            size = -1
+        if not 0 < size <= MAX_BODY:
+            return self._json({"error": "ขนาดข้อมูลไม่ถูกต้อง"}, 400)
+        try:
+            data = json.loads(self.rfile.read(size))
+            if not isinstance(data, dict):
+                raise ValueError("ต้องเป็น JSON object")
+            self._json(save_feedback(data))
+        except ValueError as e:  # รวม JSONDecodeError
+            self._json({"error": str(e)}, 400)
 
     def log_message(self, fmt, *args) -> None:
         pass
