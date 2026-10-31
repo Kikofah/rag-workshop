@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ถามระเบียบบริษัท</title>
+<style>
+:root {
+  --bg: #F4F6F8; --card: #FFFFFF; --ink: #16202A; --ink2: #2B3743; --muted: #5B6673;
+  --line: #DDE2E8; --soft: #EEF1F4; --accent: #0B5E5E; --accent-soft: #E3F0F0;
+  --ok-bg: #E6F2EE; --ok: #1D5B45; --old-bg: #FDF3E7; --old: #8A4B0C; --info-bg: #EAF0F7; --info: #1F3A5C;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 "IBM Plex Sans Thai", system-ui, sans-serif; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 32px; background: var(--card); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+.brand b { display: block; font-size: 16px; line-height: 1.3; }
+.brand small { color: var(--muted); font-size: 12px; }
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.metrics { font-size: 12px; color: var(--muted); }
+.seg { display: flex; padding: 3px; gap: 2px; background: var(--soft); border-radius: 10px; }
+.seg button { border: 0; background: transparent; padding: 8px 14px; min-height: 36px; border-radius: 8px; font: inherit; font-size: 13px; color: #44505C; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(22,32,42,.12); }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--ok-bg); color: var(--ok); font-size: 12px; font-weight: 500; }
+.layout { display: flex; flex-wrap: wrap; gap: 24px; padding: 24px 32px; max-width: 1440px; margin: 0 auto; align-items: flex-start; }
+nav { flex: 1 1 220px; max-width: 260px; display: flex; flex-direction: column; gap: 20px; }
+.label { font-size: 12px; font-weight: 600; color: var(--muted); padding: 0 12px 4px; }
+nav .list { display: flex; flex-direction: column; gap: 4px; }
+nav button { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; border: 0; background: transparent; padding: 10px 12px; min-height: 44px; border-radius: 10px; font: inherit; color: var(--ink); cursor: pointer; }
+nav button span { font-size: 12px; color: var(--muted); }
+nav button[aria-pressed="true"] { background: var(--card); font-weight: 600; box-shadow: 0 1px 2px rgba(22,32,42,.08); }
+nav .sample { font-size: 14px; min-height: 40px; color: var(--ink2); }
+main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.q { align-self: flex-end; max-width: 80%; padding: 12px 18px; border-radius: 16px 16px 4px 16px; background: var(--ink); color: #fff; }
+.queries { font-size: 12px; color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; }
+.card p { margin: 0; font-size: 16px; line-height: 1.8; white-space: pre-line; }
+.cite { border: 0; padding: 0 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font: 12px "IBM Plex Mono", monospace; cursor: pointer; vertical-align: 2px; }
+.note { padding: 12px 16px; border-radius: 12px; font-size: 14px; }
+.note.info { background: var(--info-bg); color: var(--info); }
+.note.old { background: var(--old-bg); color: #6B3A0A; }
+.cmd { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cmd code { flex: 1 1 240px; padding: 10px 12px; border-radius: 10px; background: var(--soft); font: 13px "IBM Plex Mono", monospace; overflow-wrap: anywhere; }
+.btn { min-height: 44px; padding: 0 18px; border-radius: 10px; font: inherit; font-weight: 600; cursor: pointer; border: 1.5px solid var(--accent); background: var(--card); color: var(--accent); }
+.btn.primary { border: 0; background: var(--accent); color: #fff; }
+form { display: flex; flex-direction: column; gap: 8px; }
+form label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+.box { display: flex; gap: 8px; padding: 6px; background: var(--card); border: 1.5px solid #C9D1DA; border-radius: 14px; }
+.box:focus-within { border-color: var(--accent); }
+.box input { flex: 1; min-width: 0; border: 0; outline: none; font: inherit; padding: 10px 12px; background: transparent; color: var(--ink); }
+.hint { font-size: 12px; color: var(--muted); }
+aside { flex: 1 1 320px; max-width: 380px; display: flex; flex-direction: column; gap: 12px; }
+aside h2 { margin: 0; font-size: 15px; }
+.head { display: flex; justify-content: space-between; align-items: baseline; }
+.chunk { text-align: left; font: inherit; color: var(--ink); cursor: pointer; width: 100%; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--card); border: 1px solid var(--line); }
+.chunk.old { background: #FBFAF7; border: 1px dashed #D9B98C; }
+.chunk.focus { border: 2px solid var(--accent); box-shadow: 0 0 0 4px rgba(11,94,94,.12); }
+.chunk .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.badge { padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap; background: var(--soft); color: #44505C; }
+.badge.active { background: var(--ok-bg); color: var(--ok); }
+.badge.old { background: var(--old-bg); color: var(--old); }
+.chunk .meta { font-size: 13px; color: var(--muted); }
+.chunk .text { font-size: 13px; color: var(--ink2); white-space: pre-line; }
+.bar { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.bar i { flex: 1; height: 6px; border-radius: 3px; background: var(--soft); }
+.bar i b { display: block; height: 6px; border-radius: 3px; background: #9AA6B2; }
+.chunk.old .bar i b { background: #C9A47A; }
+.chunk:not(.old) .bar i b.top1 { background: var(--accent); }
+.empty { color: var(--muted); font-size: 14px; }
+@media (max-width: 720px) { header, .layout { padding-left: 16px; padding-right: 16px; } nav, aside { max-width: none; } .card { padding: 18px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h6M8 11h6"/></svg></div>
+    <div><b>ถามระเบียบบริษัท</b><small>บริษัท นาวา ดิจิทัล</small></div>
+  </div>
+  <div class="tools">
+    <span class="metrics mono" id="metrics">กำลังวัดผลชุด dev…</span>
+    <div class="seg" role="group" aria-label="วิธีค้นคืน">
+      <button type="button" data-method="tfidf" aria-pressed="false">TF-IDF</button>
+      <button type="button" data-method="hybrid" aria-pressed="true">Hybrid</button>
+    </div>
+    <span class="pill">ประมวลผลในเครื่อง ไม่เรียก API</span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav aria-label="หมวดเรื่อง">
+    <div class="list"><span class="label">หมวดเรื่อง</span><div class="list" id="cats"></div></div>
+    <div class="list"><span class="label" id="sample-label">ตัวอย่างคำถาม</span><div class="list" id="samples"></div></div>
+  </nav>
+
+  <main>
+    <div id="thread"><p class="empty">พิมพ์คำถามด้านล่าง หรือเลือกตัวอย่างคำถามจากแถบซ้าย</p></div>
+    <form id="ask">
+      <label for="q">ถามเรื่องระเบียบบริษัท</label>
+      <div class="box">
+        <input id="q" type="text" autocomplete="off" placeholder="เช่น ลาพักร้อนได้กี่วัน">
+        <button class="btn primary" type="submit">ค้น</button>
+      </div>
+      <span class="hint">ระบบค้นคืนจากเอกสารในเครื่อง คำตอบสร้างโดย Claude Code ผ่านคำสั่ง /ask</span>
+    </form>
+  </main>
+
+  <aside aria-label="หลักฐานที่ค้นคืน">
+    <div class="head"><h2>หลักฐานที่ค้นคืน</h2><span class="hint" id="k-label"></span></div>
+    <div id="chunks"><p class="empty">ยังไม่มีผลค้น</p></div>
+  </aside>
+</div>
+
+<script>
+const CATS = [
+  { label: "การลา", dept: "HR", samples: ["ลาพักร้อนได้กี่วัน", "ลาป่วยกี่วันต้องมีใบรับรองแพทย์"] },
+  { label: "สวัสดิการและ WFH", dept: "HR", samples: ["เบิกค่าทำฟันได้เท่าไร", "ทำงานจากที่บ้านได้กี่วัน"] },
+  { label: "เบิกค่าใช้จ่ายและเดินทาง", dept: "การเงิน", samples: ["ขับรถไปเองเบิกได้กิโลเมตรละเท่าไร"] },
+  { label: "IT และความปลอดภัย", dept: "IT", samples: ["ลืมรหัสผ่านต้องทำอย่างไร"] },
+  { label: "PDPA และข้อมูล", dept: "คุ้มครองข้อมูล", samples: ["ข้อมูลลับต้องเก็บอย่างไร"] },
+  { label: "อาคารสถานที่", dept: "อาคาร", samples: ["มีจุดชาร์จรถยนต์ไฟฟ้าไหม"] },
+  { label: "บริการลูกค้า", dept: "บริการลูกค้า", samples: ["ลูกค้าขอคืนเงินได้ภายในกี่วัน"] },
+];
+const K = 4;
+const state = { method: "hybrid", cat: 0, query: "", results: [], metrics: null };
+const $ = (id) => document.getElementById(id);
+
+// สร้าง element ด้วย textContent เสมอ ข้อความในเอกสารเป็นข้อมูล ไม่ใช่ HTML
+function el(tag, props = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  }
+  for (const c of kids) if (c != null) n.append(c);
+  return n;
+}
+
+function renderCats() {
+  $("cats").replaceChildren(...CATS.map((c, i) => el("button",
+    { type: "button", "aria-pressed": String(i === state.cat), onclick: () => { state.cat = i; renderCats(); } },
+    c.label, el("span", {}, c.dept))));
+  $("sample-label").textContent = "ตัวอย่างคำถาม · " + CATS[state.cat].label;
+  $("samples").replaceChildren(...CATS[state.cat].samples.map((s) =>
+    el("button", { type: "button", class: "sample", onclick: () => ask(s) }, s)));
+}
+
+function renderMetrics() {
+  const m = state.metrics && state.metrics[state.method];
+  $("metrics").textContent = m
+    ? `dev ${m.n} ข้อ · hit@1 ${m["hit@1"].toFixed(3)} · hit@4 ${m["hit@4"].toFixed(3)} · MRR ${m.mrr.toFixed(3)}`
+    : "กำลังวัดผลชุด dev…";
+  document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.method === state.method)));
+}
+
+function focusChunk(id) {
+  document.querySelectorAll(".chunk").forEach((c) => {
+    const on = c.dataset.id === id;
+    c.classList.toggle("focus", on);
+    if (on) { c.querySelector(".text").hidden = false; c.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+  });
+}
+
+// แปลง "... [HR-01#1]" เป็นข้อความ + ปุ่มอ้างอิง
+function withCitations(text) {
+  const p = el("p");
+  for (const part of text.split(/(\[[A-Z]{2}-[\w-]+#\d+\])/)) {
+    const m = part.match(/^\[(.+)\]$/);
+    p.append(m ? el("button", { type: "button", class: "cite", onclick: () => focusChunk(m[1]) }, m[1]) : part);
+  }
+  return p;
+}
+
+function renderChunks() {
+  const rs = state.results;
+  $("k-label").textContent = rs.length ? `k = ${K} · ${state.method === "hybrid" ? "Hybrid" : "TF-IDF"}` : "";
+  if (!rs.length) { $("chunks").replaceChildren(el("p", { class: "empty" }, state.query ? "ไม่พบ chunk" : "ยังไม่มีผลค้น")); return; }
+  const top = Math.max(...rs.map((r) => r.score)) || 1;
+  const firstActive = rs.find((r) => r.status === "active");
+  $("chunks").replaceChildren(...rs.map((r) => {
+    const old = r.status !== "active";
+    const text = el("span", { class: "text" }, r.text.split("\n").slice(1).join("\n"));
+    text.hidden = true;
+    const bar = el("b", { style: `width:${Math.round((r.score / top) * 100)}%`, class: r === firstActive ? "top1" : "" });
+    return el("button", { type: "button", class: "chunk" + (old ? " old" : ""), "data-id": r.chunk_id, onclick: () => { text.hidden = !text.hidden; } },
+      el("span", { class: "top" }, el("span", { class: "mono" }, r.chunk_id),
+        el("span", { class: "badge " + (old ? "old" : "active") }, old ? `${r.status} · ใช้เทียบเท่านั้น` : "active")),
+      el("span", { class: "meta" }, `${r.title} · ${r.section} · v${r.version} · มีผล ${r.effective_date}`),
+      text,
+      el("span", { class: "bar" }, el("i", {}, bar), el("span", { class: "mono" }, r.score.toFixed(3))));
+  }));
+}
+
+function renderThread(saved) {
+  const q = state.query;
+  const rs = state.results;
+  const active = rs.filter((r) => r.status === "active");
+  const changed = rs.filter((r) => r.status !== "active" && active.some((a) => a.title.startsWith(r.title.replace(/ \(.*\)$/, "")) && a.section === r.section));
+  const cmd = `/ask ${q}`;
+  const copyBtn = el("button", { type: "button", class: "btn", onclick: async (e) => {
+    try { await navigator.clipboard.writeText(cmd); e.target.textContent = "คัดลอกแล้ว"; } catch { e.target.textContent = "คัดลอกไม่ได้"; }
+  } }, "คัดลอกคำสั่ง");
+
+  const card = el("article", { class: "card", "aria-label": "คำตอบ" });
+  if (saved) {
+    card.append(withCitations(saved.answer), el("span", { class: "hint" }, "คำตอบที่ /ask-eval บันทึกไว้ใน out/answers_dev.jsonl"));
+  } else {
+    card.append(el("div", { class: "note info" },
+      active.length ? `พบ ${active.length} chunk ฉบับ active ที่เกี่ยวข้อง (ดูแผงขวา) ให้ Claude Code สร้างคำตอบพร้อมอ้าง chunk_id ด้วยคำสั่งนี้` : "ไม่พบ chunk ฉบับ active ที่เกี่ยวข้อง"),
+      el("div", { class: "cmd" }, el("code", {}, cmd), copyBtn));
+  }
+  for (const c of changed) {
+    card.append(el("div", { class: "note old" }, "มีฉบับเดิมในผลค้น ", el("button", { type: "button", class: "cite", onclick: () => focusChunk(c.chunk_id) }, c.chunk_id),
+      ` (มีผล ${c.effective_date}) ตอบจากฉบับ active เท่านั้น`));
+  }
+  $("thread").replaceChildren(el("div", { class: "q" }, q), el("div", { class: "queries" }, `ค้นด้วย ${state.method === "hybrid" ? "Hybrid" : "TF-IDF"} · ${rs.length} chunk`), card);
+  card.style.marginTop = "12px";
+}
+
+async function getJSON(url) {
+  const r = await fetch(url);
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || r.statusText);
+  return d;
+}
+
+async function ask(q) {
+  q = q.trim();
+  if (!q) return;
+  state.query = q;
+  $("q").value = "";
+  $("thread").replaceChildren(el("p", { class: "empty" }, "กำลังค้น…"));
+  try {
+    const p = new URLSearchParams({ q, k: K, method: state.method });
+    const [res, ans] = await Promise.all([getJSON("/api/retrieve?" + p), getJSON("/api/answer?" + new URLSearchParams({ q }))]);
+    state.results = res.results;
+    renderChunks();
+    renderThread(ans.answer);
+  } catch (e) {
+    $("thread").replaceChildren(el("div", { class: "note old" }, "ค้นไม่สำเร็จ: " + e.message));
+  }
+}
+
+document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
+  state.method = b.dataset.method;
+  renderMetrics();
+  if (state.query) ask(state.query);
+}));
+$("ask").addEventListener("submit", (e) => { e.preventDefault(); ask($("q").value); });
+
+renderCats();
+renderMetrics();
+getJSON("/api/metrics").then((m) => { state.metrics = m; renderMetrics(); }).catch(() => { $("metrics").textContent = "วัดผลไม่สำเร็จ"; });
+</script>
+</body>
+</html>

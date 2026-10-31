@@ -23,4 +23,5 @@ pytest -q -m w4                # เป้าหมายเวิร์กช�
 python -m rag.retrieve "ลาพักร้อนได้กี่วัน" -k 4
 python -m rag.evaluate --split dev --method tfidf -k 4
 python -m rag.check_answers out/answers_dev.jsonl
+python -m rag.web --port 8000  # เว็บแอปค้นคืนในเครื่อง http://127.0.0.1:8000
 ```
