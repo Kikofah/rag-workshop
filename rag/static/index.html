@@ -36,7 +36,12 @@ nav button[aria-pressed="true"] { background: var(--card); font-weight: 600; box
 nav .sample { font-size: 14px; min-height: 40px; color: var(--ink2); }
 nav .sample[aria-current="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; box-shadow: none; }
 main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
-#thread { display: flex; flex-direction: column; gap: 12px; }
+#thread { display: flex; flex-direction: column; gap: 32px; }
+.turn { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 16px; }
+.turn:not(.active) .card { border-color: var(--line); }
+.turn.active .card { border-color: var(--accent); }
+.link { border: 0; background: transparent; padding: 4px 6px; border-radius: 6px; font: inherit; font-size: 12px; color: var(--accent); text-decoration: underline; cursor: pointer; }
+.formhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .q { align-self: flex-end; max-width: 80%; padding: 12px 18px; border-radius: 16px 16px 4px 16px; background: var(--ink); color: #fff; }
 .queries { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
 .chip { padding: 3px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink2); font: 12px "IBM Plex Mono", monospace; }
@@ -112,9 +117,9 @@ aside h2 { margin: 0; font-size: 15px; }
   </nav>
 
   <main>
-    <div id="thread"><p class="empty">พิมพ์คำถามด้านล่าง หรือกดตัวอย่างคำถามจากแถบซ้าย</p></div>
+    <div id="thread"><p class="empty" id="thread-empty">พิมพ์คำถามด้านล่าง หรือกดตัวอย่างคำถามจากแถบซ้าย</p></div>
     <form id="ask">
-      <label for="q">ถามเรื่องระเบียบบริษัท</label>
+      <div class="formhead"><label for="q">ถามเรื่องระเบียบบริษัท</label><button type="button" class="link" id="clear">ล้างบทสนทนา</button></div>
       <div class="box">
         <input id="q" type="text" autocomplete="off" placeholder="เช่น เบิกค่าทำฟันได้เท่าไร">
         <button class="btn primary" type="submit">ถาม</button>
@@ -125,6 +130,7 @@ aside h2 { margin: 0; font-size: 15px; }
 
   <aside aria-label="หลักฐานที่ค้นคืน">
     <div class="head"><h2>หลักฐานที่ค้นคืน</h2><span class="hint" id="k-label"></span></div>
+    <span class="hint" id="for-q"></span>
     <div id="chunks"><p class="empty">ยังไม่มีผลค้น</p></div>
     <span class="hint">กดการ์ดเพื่อเปิดข้อความ · กดป้ายอ้างอิงในคำตอบเพื่อไฮไลต์</span>
   </aside>
@@ -151,7 +157,8 @@ const ICON = {
   up: '<path d="M7 11v9H4v-9z"/><path d="M7 11l4-7a2 2 0 0 1 3 2l-1 4h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 16.8 20H7"/>',
   flag: '<path d="M5 21V4h11l-1.5 4L16 12H5"/>',
 };
-const state = { method: "hybrid", cat: 0, query: "", expanded: "", results: [], answer: null, focus: null, vote: "none", seq: 0, metrics: null };
+// แต่ละคำถามเป็นหนึ่ง turn ต่อกันลงมาแบบแชต แผงหลักฐานแสดงผลของ turn ที่เลือก (ค่าเริ่มต้นคือ turn ล่าสุด)
+const state = { method: "hybrid", cat: 0, turns: [], active: null, focus: null, metrics: null };
 const $ = (id) => document.getElementById(id);
 
 // สร้าง element ด้วย textContent เสมอ ข้อความในเอกสารเป็นข้อมูล ไม่ใช่ HTML
@@ -173,17 +180,18 @@ function icon(name, size = 18) {
   return s;
 }
 
-const methodName = () => (state.method === "hybrid" ? "Hybrid" : "TF-IDF");
+const nameOf = (m) => (m === "hybrid" ? "Hybrid" : "TF-IDF");
 const citesIn = (text) => [...text.matchAll(/\[([A-Z]{2}-[\w-]+#\d+)\]/g)].map((m) => m[1]);
-const byId = (id) => state.results.find((r) => r.chunk_id === id);
+const lastTurn = () => state.turns[state.turns.length - 1];
 
 function renderCats() {
+  const last = lastTurn()?.query;
   $("cats").replaceChildren(...CATS.map((c, i) => el("button",
     { type: "button", "aria-pressed": String(i === state.cat), onclick: () => { state.cat = i; renderCats(); } },
     c.label, el("span", {}, c.dept))));
   $("sample-label").textContent = "ตัวอย่างคำถาม · " + CATS[state.cat].label;
   $("samples").replaceChildren(...CATS[state.cat].samples.map((s) =>
-    el("button", { type: "button", class: "sample", "aria-current": String(s === state.query), onclick: () => ask(s) }, s)));
+    el("button", { type: "button", class: "sample", "aria-current": String(s === last), onclick: () => ask(s) }, s)));
 }
 
 function renderMetrics() {
@@ -194,18 +202,21 @@ function renderMetrics() {
   document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.method === state.method)));
 }
 
-function focusChunk(id) {
-  state.focus = id;
+// เลือก turn ให้แผงหลักฐานแสดง และไฮไลต์ chunk ถ้าระบุ
+function selectTurn(t, chunkId = null) {
+  state.active = t;
+  state.focus = chunkId;
+  document.querySelectorAll(".turn").forEach((n) => n.classList.toggle("active", n === t.node));
   renderChunks();
-  document.querySelector(".chunk.focus")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (chunkId) document.querySelector(".chunk.focus")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
-// แปลง "ข้อความ [HR-01#1]" เป็นข้อความ + ปุ่มอ้างอิง
-function withCitations(text, tag = "p") {
+// แปลง "ข้อความ [HR-01#1]" เป็นข้อความ + ปุ่มอ้างอิงของ turn นั้น
+function withCitations(t, text, tag = "p") {
   const n = el(tag);
   for (const part of text.split(CITE_RE)) {
     const m = part.match(/^\[(.+)\]$/);
-    n.append(m ? el("button", { type: "button", class: "cite", onclick: () => focusChunk(m[1]) }, m[1]) : part);
+    n.append(m ? el("button", { type: "button", class: "cite", onclick: () => selectTurn(t, m[1]) }, m[1]) : part);
   }
   return n;
 }
@@ -215,10 +226,12 @@ function note(kind, iconName, ...kids) {
 }
 
 function renderChunks() {
-  const rs = state.results;
-  $("k-label").textContent = rs.length ? `k = ${K} · ${methodName()}` : "";
-  if (!rs.length) { $("chunks").replaceChildren(el("p", { class: "empty" }, state.query ? "ไม่พบ chunk" : "ยังไม่มีผลค้น")); return; }
-  const used = new Set(state.answer ? citesIn(state.answer.answer) : []);
+  const t = state.active;
+  const rs = t && !t.loading && !t.error ? t.results : [];
+  $("k-label").textContent = rs.length ? `k = ${K} · ${nameOf(t.method)}` : "";
+  $("for-q").textContent = t ? "สำหรับคำถาม: " + t.query : "";
+  if (!rs.length) { $("chunks").replaceChildren(el("p", { class: "empty" }, t?.loading ? "กำลังค้น…" : t ? "ไม่พบ chunk" : "ยังไม่มีผลค้น")); return; }
+  const used = new Set(t.answer ? citesIn(t.answer.answer) : []);
   const top = Math.max(...rs.map((r) => r.score)) || 1;
   $("chunks").replaceChildren(...rs.map((r) => {
     const old = r.status !== "active";
@@ -226,7 +239,7 @@ function renderChunks() {
     const focused = state.focus === r.chunk_id;
     const text = el("span", { class: "text" }, r.text.split("\n").slice(1).join("\n"));
     text.hidden = !focused;
-    const badge = old ? `${r.status} · ใช้เทียบเท่านั้น` : isUsed ? "active · ใช้ในคำตอบ" : state.answer ? "active · ไม่ได้ใช้" : "active";
+    const badge = old ? `${r.status} · ใช้เทียบเท่านั้น` : isUsed ? "active · ใช้ในคำตอบ" : t.answer ? "active · ไม่ได้ใช้" : "active";
     return el("button", {
       type: "button", class: "chunk" + (old ? " old" : "") + (isUsed ? " used" : "") + (focused ? " focus" : ""),
       "aria-expanded": String(focused), onclick: (e) => { text.hidden = !text.hidden; e.currentTarget.setAttribute("aria-expanded", String(!text.hidden)); },
@@ -239,78 +252,88 @@ function renderChunks() {
 }
 
 // คำตอบรูปแบบเดียวกับ /ask: บรรทัดคำตอบ, "หมายเหตุ: ...", "⚠️ ...", "แหล่งอ้างอิง: ..."
-function answerBody(answer) {
+function answerBody(t) {
   const out = [];
-  for (const line of answer.split("\n").map((l) => l.trim()).filter(Boolean)) {
+  for (const line of t.answer.answer.split("\n").map((l) => l.trim()).filter(Boolean)) {
     if (line.startsWith("แหล่งอ้างอิง")) continue;
-    if (line.startsWith("หมายเหตุ")) out.push(note("old", "history", withCitations(line.replace(/^หมายเหตุ:\s*/, ""), "span")));
-    else if (line.startsWith("⚠️")) out.push(note("warn", "warn", withCitations(line.replace(/^⚠️\s*/, ""), "span")));
-    else out.push(withCitations(line));
+    if (line.startsWith("หมายเหตุ")) out.push(note("old", "history", withCitations(t, line.replace(/^หมายเหตุ:\s*/, ""), "span")));
+    else if (line.startsWith("⚠️")) out.push(note("warn", "warn", withCitations(t, line.replace(/^⚠️\s*/, ""), "span")));
+    else out.push(withCitations(t, line));
   }
   return out;
 }
 
 // ไม่มีคำตอบที่บันทึกไว้: แจ้งฉบับเดิมและประกาศที่อยู่ในผลค้น เพื่อให้ตรวจก่อนตอบ
-function retrievalNotes() {
-  const rs = state.results;
-  const active = rs.filter((r) => r.status === "active");
+function retrievalNotes(t) {
+  const active = t.results.filter((r) => r.status === "active");
+  const chip = (r) => el("button", { type: "button", class: "cite", onclick: () => selectTurn(t, r.chunk_id) }, r.chunk_id);
   const out = [];
-  for (const r of rs.filter((r) => r.status !== "active")) {
+  for (const r of t.results.filter((r) => r.status !== "active")) {
     const base = r.title.replace(/\s*\(.*\)$/, "");
     if (active.some((a) => a.title === base && a.section === r.section)) {
-      out.push(note("old", "history", "มีฉบับเดิมในผลค้น ", el("button", { type: "button", class: "cite", onclick: () => focusChunk(r.chunk_id) }, r.chunk_id), ` (มีผล ${r.effective_date}) ใช้เทียบเท่านั้น`));
+      out.push(note("old", "history", "มีฉบับเดิมในผลค้น ", chip(r), ` (มีผล ${r.effective_date}) ใช้เทียบเท่านั้น`));
     }
   }
   for (const r of active.filter((r) => r.doc_id.startsWith("AN-"))) {
-    out.push(note("info", "info", "มีประกาศที่เกี่ยวข้อง ", el("button", { type: "button", class: "cite", onclick: () => focusChunk(r.chunk_id) }, r.chunk_id), ` มีผล ${r.effective_date}`));
+    out.push(note("info", "info", "มีประกาศที่เกี่ยวข้อง ", chip(r), ` มีผล ${r.effective_date}`));
   }
   return out;
 }
 
-function feedbackRow() {
-  const a = state.answer;
-  const firstId = citesIn(a.answer).find((id) => byId(id)?.status === "active") || citesIn(a.answer)[0];
-  const c = firstId && byId(firstId);
+function feedbackRow(t) {
+  const ids = citesIn(t.answer.answer);
+  const firstId = ids.find((id) => t.results.find((r) => r.chunk_id === id)?.status === "active") || ids[0];
+  const c = firstId && t.results.find((r) => r.chunk_id === firstId);
   const status = el("span", { class: "hint" }, firstId ? `แหล่งอ้างอิง: ${firstId}${c ? ` · ${c.title} · ${c.section}` : ""}` : "");
   const vote = async (v, btn) => {
-    state.vote = state.vote === v ? "none" : v;
-    btn.parentElement.querySelectorAll("[data-vote]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.vote === state.vote)));
+    t.vote = t.vote === v ? "none" : v;
+    btn.parentElement.querySelectorAll("[data-vote]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.vote === t.vote)));
     try {
-      await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: state.query, vote: state.vote, method: state.method }) });
-      status.textContent = state.vote === "up" ? "ขอบคุณสำหรับความเห็น" : state.vote === "down" ? "บันทึกว่าคำตอบนี้ไม่ถูกต้องแล้ว" : "ยกเลิกความเห็นแล้ว";
+      await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: t.query, vote: t.vote, method: t.method }) });
+      status.textContent = t.vote === "up" ? "ขอบคุณสำหรับความเห็น" : t.vote === "down" ? "บันทึกว่าคำตอบนี้ไม่ถูกต้องแล้ว" : "ยกเลิกความเห็นแล้ว";
     } catch { status.textContent = "บันทึกความเห็นไม่สำเร็จ"; }
   };
   const iconBtn = (name, label, extra = {}) => el("button", { type: "button", class: "icon", "aria-label": label, ...extra }, icon(name));
   const copy = iconBtn("copy", "คัดลอกคำตอบ", { onclick: async (e) => {
-    try { await navigator.clipboard.writeText(a.answer); e.currentTarget.setAttribute("aria-pressed", "true"); status.textContent = "คัดลอกคำตอบแล้ว"; }
+    const b = e.currentTarget;
+    try { await navigator.clipboard.writeText(t.answer.answer); b.setAttribute("aria-pressed", "true"); status.textContent = "คัดลอกคำตอบแล้ว"; }
     catch { status.textContent = "คัดลอกไม่ได้"; }
   } });
-  const up = iconBtn("up", "คำตอบมีประโยชน์", { "data-vote": "up", "aria-pressed": "false", onclick: (e) => vote("up", e.currentTarget) });
-  const down = iconBtn("flag", "รายงานคำตอบไม่ถูกต้อง", { "data-vote": "down", "aria-pressed": "false", onclick: (e) => vote("down", e.currentTarget) });
+  const up = iconBtn("up", "คำตอบมีประโยชน์", { "data-vote": "up", "aria-pressed": String(t.vote === "up"), onclick: (e) => vote("up", e.currentTarget) });
+  const down = iconBtn("flag", "รายงานคำตอบไม่ถูกต้อง", { "data-vote": "down", "aria-pressed": String(t.vote === "down"), onclick: (e) => vote("down", e.currentTarget) });
   return el("div", { class: "foot" }, status, el("div", { class: "icons" }, copy, up, down));
 }
 
-function renderThread() {
-  const q = state.query;
-  const card = el("article", { class: "card", "aria-label": "คำตอบ" });
-  if (state.answer) {
-    card.append(...answerBody(state.answer.answer), feedbackRow());
+function renderTurn(t) {
+  const kids = [el("div", { class: "q" }, t.query)];
+  if (t.loading) {
+    kids.push(el("div", { class: "loading" }, icon("search"), `กำลังค้นด้วย ${nameOf(t.method)}…`));
+  } else if (t.error) {
+    kids.push(note("warn", "warn", "ค้นไม่สำเร็จ: " + t.error));
   } else {
-    const active = state.results.filter((r) => r.status === "active");
-    const cmd = `/ask ${q}`;
-    card.append(
-      note("info", "info", active.length
-        ? `ยังไม่มีคำตอบที่บันทึกไว้ · พบ ${active.length} chunk ฉบับ active (ดูแผงขวา) ให้ Claude Code สร้างคำตอบพร้อมอ้าง chunk_id ด้วยคำสั่งนี้`
-        : "ไม่พบ chunk ฉบับ active ที่เกี่ยวข้อง ถาม Claude Code ด้วยคำสั่งนี้เพื่อให้แนะนำฝ่ายที่ต้องติดต่อ"),
-      el("div", { class: "cmd" }, el("code", {}, cmd), el("button", { type: "button", class: "btn", onclick: async (e) => {
-        try { await navigator.clipboard.writeText(cmd); e.target.textContent = "คัดลอกแล้ว"; } catch { e.target.textContent = "คัดลอกไม่ได้"; }
-      } }, "คัดลอกคำสั่ง")),
-      ...retrievalNotes());
+    const queries = el("div", { class: "queries" }, el("span", {}, "คำค้น"), el("span", { class: "chip" }, t.query));
+    if (t.expanded && t.expanded !== t.query) queries.append(el("span", { class: "chip" }, "ขยาย · " + t.expanded));
+    queries.append(el("span", {}, `· ${nameOf(t.method)} · ${t.results.length} chunk` + (t.answer ? ` · คำตอบที่บันทึกไว้ (${t.answer.source})` : "")),
+      el("button", { type: "button", class: "link", onclick: () => selectTurn(t) }, "ดูหลักฐาน"));
+    const card = el("article", { class: "card", "aria-label": "คำตอบ" });
+    if (t.answer) {
+      card.append(...answerBody(t), feedbackRow(t));
+    } else {
+      const active = t.results.filter((r) => r.status === "active");
+      const cmd = `/ask ${t.query}`;
+      card.append(
+        note("info", "info", active.length
+          ? `ยังไม่มีคำตอบที่บันทึกไว้ · พบ ${active.length} chunk ฉบับ active (ดูแผงขวา) ให้ Claude Code สร้างคำตอบพร้อมอ้าง chunk_id ด้วยคำสั่งนี้`
+          : "ไม่พบ chunk ฉบับ active ที่เกี่ยวข้อง ถาม Claude Code ด้วยคำสั่งนี้เพื่อให้แนะนำฝ่ายที่ต้องติดต่อ"),
+        el("div", { class: "cmd" }, el("code", {}, cmd), el("button", { type: "button", class: "btn", onclick: async (e) => {
+          const b = e.target;
+          try { await navigator.clipboard.writeText(cmd); b.textContent = "คัดลอกแล้ว"; } catch { b.textContent = "คัดลอกไม่ได้"; }
+        } }, "คัดลอกคำสั่ง")),
+        ...retrievalNotes(t));
+    }
+    kids.push(queries, card);
   }
-  const queries = el("div", { class: "queries" }, el("span", {}, "คำค้น"), el("span", { class: "chip" }, q));
-  if (state.expanded && state.expanded !== q) queries.append(el("span", { class: "chip" }, "ขยาย · " + state.expanded));
-  queries.append(el("span", {}, `· ${methodName()} · ${state.results.length} chunk` + (state.answer ? ` · คำตอบที่บันทึกไว้ (${state.answer.source})` : "")));
-  $("thread").replaceChildren(el("div", { class: "q" }, q), queries, card);
+  t.node.replaceChildren(...kids);
 }
 
 async function getJSON(url) {
@@ -320,34 +343,59 @@ async function getJSON(url) {
   return d;
 }
 
-async function ask(q) {
-  q = q.trim();
-  if (!q) return;
-  const seq = ++state.seq; // คำขอที่ช้ากว่าจะไม่ทับผลของคำถามล่าสุด
-  Object.assign(state, { query: q, focus: null, vote: "none" });
-  $("q").value = "";
-  renderCats();
-  $("thread").replaceChildren(el("div", { class: "q" }, q), el("div", { class: "loading" }, icon("search"), `กำลังค้นด้วย ${methodName()}…`));
+// ค้นให้ turn นี้ด้วยวิธีที่เลือกอยู่ ถ้า turn ถูกสั่งค้นซ้ำระหว่างรอ ผลเก่าจะถูกทิ้ง
+async function run(t) {
+  const seq = (t.seq || 0) + 1;
+  Object.assign(t, { seq, method: state.method, loading: true, error: null, vote: "none" });
+  renderTurn(t);
+  if (state.active === t) renderChunks();
   try {
-    const p = new URLSearchParams({ q, k: K, method: state.method });
-    const [res, ans] = await Promise.all([getJSON("/api/retrieve?" + p), getJSON("/api/answer?" + new URLSearchParams({ q }))]);
-    if (seq !== state.seq) return;
-    Object.assign(state, { results: res.results, expanded: res.expanded, answer: ans.answer });
-    renderChunks();
-    renderThread();
+    const p = new URLSearchParams({ q: t.query, k: K, method: t.method });
+    const [res, ans] = await Promise.all([getJSON("/api/retrieve?" + p), getJSON("/api/answer?" + new URLSearchParams({ q: t.query }))]);
+    if (seq !== t.seq) return;
+    Object.assign(t, { results: res.results, expanded: res.expanded, answer: ans.answer });
   } catch (e) {
-    if (seq !== state.seq) return;
-    $("thread").replaceChildren(el("div", { class: "q" }, q), note("warn", "warn", "ค้นไม่สำเร็จ: " + e.message));
+    if (seq !== t.seq) return;
+    t.error = e.message;
   }
+  t.loading = false;
+  renderTurn(t);
+  if (state.active === t) renderChunks();
 }
 
+function ask(q) {
+  q = q.trim();
+  if (!q) return;
+  $("q").value = "";
+  $("thread-empty")?.remove();
+  const t = { query: q, results: [], node: el("section", { class: "turn", "aria-label": "คำถาม: " + q }) };
+  state.turns.push(t);
+  $("thread").append(t.node);
+  selectTurn(t);
+  renderCats();
+  run(t).then(() => t.node.scrollIntoView({ block: "start", behavior: "smooth" }));
+  t.node.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+function clearChat() {
+  state.turns = [];
+  state.active = null;
+  state.focus = null;
+  $("thread").replaceChildren(el("p", { class: "empty", id: "thread-empty" }, "พิมพ์คำถามด้านล่าง หรือกดตัวอย่างคำถามจากแถบซ้าย"));
+  renderChunks();
+  renderCats();
+}
+
+// เปลี่ยนวิธีค้น: ค้นคำถามล่าสุดใหม่ในที่เดิม คำถามก่อนหน้าคงผลของวิธีที่ใช้ตอนถาม
 document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
   if (state.method === b.dataset.method) return;
   state.method = b.dataset.method;
   renderMetrics();
-  if (state.query) ask(state.query);
+  const t = lastTurn();
+  if (t) { selectTurn(t); run(t); }
 }));
 $("ask").addEventListener("submit", (e) => { e.preventDefault(); ask($("q").value); });
+$("clear").addEventListener("click", clearChat);
 
 renderCats();
 renderMetrics();
